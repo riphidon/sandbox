@@ -19,14 +19,20 @@ type IHandler interface {
 }
 
 type handler struct {
+	users  IUsers
 	items  IItems
 	makers IMakers
 	router *mux.Router
 }
 
+type accessCheck struct {
+	granted bool
+}
+
 func NewHandler(as *services.Services, r *mux.Router) IHandler {
 	logger = logs.NewAppLogger()
 	return &handler{
+		users:  NewUsers(as.IUserService),
 		items:  newItems(as.IItemService),
 		makers: NewMakers(as.IMakerService),
 		router: r,
@@ -48,12 +54,20 @@ func (h *handler) AppHandler(next http.Handler) http.HandlerFunc {
 
 func (h *handler) HandlerFn(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof("[HANDLER] %v requested %v to %v", r.RemoteAddr, r.Method, r.URL)
-		next(w, r)
+		logger.Infof("[HANDLER] %v requested %v to %v", r.RemoteAddr, r.Method, r.URL.Path)
+
+		if r.URL.Path == "/signin/" {
+			next(w, r)
+			return
+		}
+
+		h.users.AuthHandler(next)
+
 	})
 }
 
 func (h *handler) RegisterRoutes() {
 	h.items.Register(h.router)
 	h.makers.Register(h.router)
+	h.users.Register(h.router)
 }

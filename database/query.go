@@ -59,3 +59,4 @@ func (q queryHandler) Create(table, keys, values, returned string) string {
 	statement := INSERT_INTO + VALUES + RETURNING + ";"
 	return fmt.Sprintf(statement, table, keys, values, returned)
 }
+

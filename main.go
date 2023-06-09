@@ -16,7 +16,7 @@ func main() {
 
 	cfg := config.LoadConfig(false)
 	dba := database.NewDBAccess(cfg.DataBase)
-	as := services.NewAppService(dba)
+	as := services.NewAppService(dba, &cfg)
 
 	r := NewRouter()
 

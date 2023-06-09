@@ -17,6 +17,7 @@ type dbAccess struct {
 }
 
 type RepoStore struct {
+	Users  IUserRepo
 	Items  IItemRepo
 	Makers IMakerRepo
 }
@@ -24,6 +25,7 @@ type RepoStore struct {
 func NewDBAccess(cfg config.PostgresConfig) *RepoStore {
 	db := connectDB(cfg, logs.NewAppLogger())
 	return &RepoStore{
+		Users:  newUserStore(db),
 		Items:  newItemStore(db),
 		Makers: newMakerStore(db),
 	}

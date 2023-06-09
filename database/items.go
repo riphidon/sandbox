@@ -8,9 +8,8 @@ import (
 )
 
 const (
-	ITEM_DB     string = "database/items.json"
 	itemTable   string = "items"
-	itemKeys    string = "(item_name, description, maker_name, category)"
+	itemKeys    string = "item_name, description, maker_name, category"
 	itemIdKey   string = "item_id"
 	itemNameKey string = "item_name"
 )

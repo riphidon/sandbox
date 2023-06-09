@@ -46,3 +46,48 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.makers
     OWNER to user;
+
+-- Table: public.users
+
+-- DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    user_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    first_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    last_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    nickname character varying(25) COLLATE pg_catalog."default" NOT NULL,
+    email character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    password_hash character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    remember character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    remember_hash character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT users_pkey PRIMARY KEY (user_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to user;
+
+-- Table: public.users
+
+-- TRIGGER to prevent creation timestamp overwrite
+
+CREATE OR REPLACE FUNCTION stop_change_on_timestamp()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+  -- always reset the timestamp to the old value ("actual creation time")
+  NEW.timestamp := OLD.timestamp;
+  RETURN NEW;
+END;
+$BODY$
+language 'plpgsql';
+
+
+CREATE TRIGGER prevent_timestamp_changes
+  BEFORE UPDATE
+  ON users
+  FOR EACH ROW
+  EXECUTE PROCEDURE stop_change_on_timestamp();
